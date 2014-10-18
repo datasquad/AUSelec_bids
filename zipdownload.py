@@ -28,5 +28,3 @@ url_end = time()
 
 #print('wget -> {0:6.4f}'.format((wget_end - wget_start)))
 print('urllib.urlretrieve -> {0:6.4f}'.format((url_end - url_start)))
-#testing github
-print "github"
