@@ -6,42 +6,44 @@ Created on Wed Oct 15 21:03:00 2014
 @author: Ralf Becker
 """
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Oct 24 21:49:41 2014
 
-@author: kpetruskevicius
-"""
 import os
 import urllib
 from zipfile import *
 import urllib2
 from bs4 import BeautifulSoup
-downloads = []
-url = 'http://www.nemweb.com.au/REPORTS/CURRENT/Yesterdays_Bids_Reports/'
-list_of_links = []
+from time import time #import subprocess
+downloads = [] #creating empty list
+url = 'http://www.nemweb.com.au/REPORTS/CURRENT/Yesterdays_Bids_Reports/' #url path to the main website
+list_of_links = [] #empty list
 conn = urllib2.urlopen(url)
 html = conn.read()
 soup = BeautifulSoup(html)
-links = soup.find_all('a')
+links = soup.find_all('a') #find all links
+""" Creating a list of links to look through"""
 for tag in links:
     link = tag.get('href',None)
     if link != None:
         if link not in list_of_links:
             list_of_links.append("http://www.nemweb.com.au" + link)
-print list_of_links
-
-from time import time
-#import subprocess
+print list_of_links #unnecessary but useful to see how many links we're dealing with #
 
 target = list_of_links # list of links to zip files
-targeturl = urllib.URLopener()
+targeturl = urllib.URLopener() #url opener
 #
 #proc = subprocess.Popen(["wget", target])
 #proc.communicate()
 #
 
 url_start = time() #wget_start = time()
-for links in target:
+"""Downloading zip files from the website, checking if they aren't 
+already on the computer and extracting them to a new folder unzippe 
+for this step to work you need to make sure to create a new folder unzipped and
+specify your path to this folder. Instead of kpetruskevicius you will have your
+own folder. I think we'll need to try and figure out a way to make it universal
+at some point """
+
+for links in target: 
     if links != 'http://www.nemweb.com.au/REPORTS/CURRENT/':
         if links not in downloads:
             print downloads
