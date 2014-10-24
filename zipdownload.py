@@ -6,7 +6,11 @@ Created on Wed Oct 15 21:03:00 2014
 @author: Ralf Becker
 """
 
-# t
+<<<<<<< HEAD
+# te
+=======
+# tester
+>>>>>>> dc1a621fabab0862738e86f21d1c92ca96a83225
 
 from time import time
 import urllib.request
