@@ -6,7 +6,7 @@ Created on Wed Oct 15 21:03:00 2014
 @author: Ralf Becker
 """
 
-# tes
+# tester
 
 from time import time
 import urllib.request
