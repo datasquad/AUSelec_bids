@@ -59,3 +59,19 @@ url_end = time() #wget_end = time()
 print('urllib.urlretrieve -> {0:6.4f}'.format((url_end - url_start)))
 
 
+"""
+This works for individual files screening for energy data. It takes an old
+file and creates a new one with only energy information. Don't think we should 
+use this though. I think it could be better to do data wrangling with panda.
+
+reader = csv.reader(open("info.CSV", "rb"), delimiter=',')
+f = csv.writer(open("newinfo.CSV", "wb"))
+for line in reader:
+    if "C" in line:
+        f.writerow(line)
+    elif "I" in line:
+        f.writerow(line)
+    else:
+        if "ENERGY" in line:
+            f.writerow(line)
+"""
