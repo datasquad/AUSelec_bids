@@ -17,8 +17,8 @@ def splitter(source,prices,quantities):
             date = line[5:6]
             print date
         elif line[3] == "5" and line[6] == "ENERGY" or "I" in line and line[3] == "5":
+            prices.writerow(line)
             if line[5] not in gen_names:
-                prices.writerow(line)
                 gen_names.append(line[5])
         elif line[3] == "3" and line[6] == "ENERGY" or "I" in line and line[3] == "3":
             quantities.writerow(line)
@@ -32,5 +32,6 @@ splitter(reader,f,c)
 g = csv.reader(open("prices.csv","rb"))
 generatornames(g)"""
 data = pandas.read_csv('prices.CSV')
+gen_names.remove("DUID")
 print data
 print gen_names
