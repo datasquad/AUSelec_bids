@@ -33,16 +33,10 @@ def splitter(source):
             else:         # quantity file
                 c.writerow(line)
                 
-#        elif line[3] == "5" and line[6] == "ENERGY" or "I" in line and line[3] == "5":
-#            f.writerow(line)
-#            if line[5] not in gen_names:
-#                gen_names.append(line[5])
-#        elif line[3] == "3" and line[6] == "ENERGY" or "I" in line and line[3] == "3":
-#            c.writerow(line)
 
 def qtwriter(ui,uv,up):
     for mn in ui:
-        if uv == mn[5]:
+        if (uv == mn[5]) or ("I" == mn[0]): # select if generator match or heading line
             up.writerow(mn)
 
 
@@ -52,26 +46,22 @@ date = []
 
 opf="PUBLIC_YESTBID_201311020000_20131103040529.CSV"
 splitter(opf)
-"""def generatornames(source):
-    for line in source:
-        if line[0] ==  "D":
-            if line[5] not in gen_names:
-                gen_names.append(line[5])
 
-g = csv.reader(open("prices.csv","rb"))
-generatornames(g)"""
 
 # need to reove hastags from DUID codes!!!!1
 
+
 gen_names.remove("DUID")
-gen_names.remove("W/HOE#1")
-gen_names.remove("W/HOE#2")
+#gen_names.remove("W/HOE#1")
+#gen_names.remove("W/HOE#2")
 #readerprices = csv.reader(open("prices.CSV","rb"), delimiter=',')
 #readerquantities = csv.reader(open("quantities.CSV","rb"), delimiter=',')
 #print readerprices
 dater = str(date)
 datef = dater[3:7] + "_" + dater[8:10] + "_"+ dater[11:13]
 for i in gen_names:
+    if "/" in i:
+        i = i.replace("/",'')
     readerprices = csv.reader(open("prices.CSV","rb"), delimiter=',')
     readerquantities = csv.reader(open("quantities.CSV","rb"), delimiter=',')
     kl = str(i) + "_" + datef
@@ -83,14 +73,5 @@ for i in gen_names:
     readerquantities = csv.reader(open("quantities.CSV","rb"), delimiter=',')
     qtwriter(readerprices,i,p)
     qtwriter(readerquantities,i,pq)
-    #for t in readerprices:
-      #  if i == t[5]:
-           # print t
-        #    p.writerow(t)
-    #for x in readerquantities:
-       # if i == x[5]:
-        #    p.writerow(x)
-       # print x
 
-"""print gen_names
-print data"""
+
