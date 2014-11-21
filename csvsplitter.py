@@ -1,29 +1,36 @@
 # -*- coding: utf-8 -*-
 """
+Created on Fri Nov 21 03:48:00 2014
+
+@author: kpetruskevicius
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Wed Oct 29 02:49:53 2014
 
 @author: kpetruskevicius
 """
 import csv
-import pandas
 
-reader = csv.reader(open("info.CSV", "rb"), delimiter=',')
-f = csv.writer(open("prices.CSV", "wb"))
-c = csv.writer(open("quantities.CSV", "wb"))
 gen_names = []
 date = []
-def splitter(source,prices,quantities):
-    for line in source:
+def splitter(source):
+    gfd = csv.reader(open(source, "rb"), delimiter=',')
+    f = csv.writer(open("prices.CSV", "wb"))
+    c = csv.writer(open("quantities.CSV", "wb"))
+    for line in gfd:
         if "C" in line:
             date.append(line[5:6])
         elif line[3] == "5" and line[6] == "ENERGY" or "I" in line and line[3] == "5":
-            prices.writerow(line)
+            f.writerow(line)
             if line[5] not in gen_names:
                 gen_names.append(line[5])
         elif line[3] == "3" and line[6] == "ENERGY" or "I" in line and line[3] == "3":
-            quantities.writerow(line)
-        
-splitter(reader,f,c)
+            c.writerow(line)
+
+opf="info.CSV"
+splitter(opf)
 """def generatornames(source):
     for line in source:
         if line[0] ==  "D":
@@ -32,7 +39,6 @@ splitter(reader,f,c)
 
 g = csv.reader(open("prices.csv","rb"))
 generatornames(g)"""
-data = pandas.read_csv('prices.CSV')
 gen_names.remove("DUID")
 gen_names.remove("W/HOE#1")
 gen_names.remove("W/HOE#2")
