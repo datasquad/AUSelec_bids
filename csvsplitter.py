@@ -44,7 +44,7 @@ def qtwriter(ui,uv,up):
 gen_names = []
 date = []
 
-opf="PUBLIC_YESTBID_201311020000_20131103040529.CSV"
+opf="info.CSV"
 splitter(opf)
 
 
