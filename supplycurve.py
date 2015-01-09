@@ -12,16 +12,65 @@ and generates supply curves
 @author: ralffbecker
 """
 
-import csv
 import os
-import numpy as np
+#import numpy as np
 import pandas as pd
+#import matplotlib.pyplot as plt
+from pylab import *
+from matplotlib.collections import LineCollection
+
+
+def plot_supply(in_p, in_q, pr = 0):
+    # this function plots a supply curve
+    # input: (i) array with ordered price bands, (one dimensional array)
+    #        (ii) array with ordered quantities to price bands
+    #        (iii) pr = 0 no print, = 1 print
+    # output: (i) temp_p, price vector used for printing
+    #         (ii) temp_q, quantity vector used for printing
+    # @author: ralffbecker
+
+    
+    if in_p.size != in_q.size:
+        print("Price and quantity input need to have same length")
+    
+    k = in_p.size  # number of price bands
+
+    # create points for stepfunction
+
+    in_q = np.cumsum(in_q)
+    
+    temp_p = np.zeros(2*k)    
+    temp_q = np.zeros(2*k)
+    temp_p[0] = in_p[0]
+    temp_p[1] = in_p[0]     # first two points are (p1,0), (p1,q1)
+    temp_q[1] = in_q[0] 
+    i_p = 0                 # index for next price
+    i_q = 0                 # index for next quantity
+    for i in range(2,2*k):
+        if np.mod(i,2) != 0:
+            i_q = i_q + 1
+        else:
+            i_p = i_p + 1
+        
+        temp_p[i] = in_p[i_p] 
+        temp_q[i] = in_q[i_q]         
+        
+    if pr:
+        fig1 = plt.figure()
+        plt.plot(temp_q,temp_p)
+        plt.xlabel('Quantity')
+        plt.ylabel('Price')
+        plt.title('Electricity Supply Curve',fontsize=20)
+        plt.show()
+    
+    return temp_p,temp_q    
+    
 
 path = "O://elec//bids//gen_date_data//"
 folder = os.listdir(path) #retrieves a list of files in relevant directory
 
 # Selection criteria
-filter_DUID = "BRAEMAR2"
+filter_DUID = "GORDON"
 filter_YYYY = "2013"
 filter_MM   = "11"
 filter_DD   = "03"
@@ -72,11 +121,27 @@ price_cols = ['PRICEBAND1','PRICEBAND2','PRICEBAND3','PRICEBAND4','PRICEBAND5',
 quant_cols = ['BANDAVAIL1','BANDAVAIL2','BANDAVAIL3','BANDAVAIL4','BANDAVAIL5',
                   'BANDAVAIL6','BANDAVAIL7','BANDAVAIL8','BANDAVAIL9','BANDAVAIL10','PERIODID','MAXAVAIL']
 
-for i in range(ns):
-    p_temp = p_df.ix[p_df.ix[:,'BIDVERSIONNO']==(bids[i]),price_cols].values
-    q_temp = q_df.ix[q_df.ix[:,'BIDVERSIONNO']==(bids[i]),quant_cols].values
+periodid = 15   # choose the period of the day
 
-    test = 3    
+p_coll = range(20)
+q_coll = range(20)
+
+for i in range(ns):
+    p_in = p_df.ix[p_df.ix[:,'BIDVERSIONNO']==(bids[i]),price_cols].values
+    q_in = q_df.ix[q_df.ix[:,'BIDVERSIONNO']==(bids[i]),quant_cols].values
+
+    [p_temp,q_temp] = plot_supply(p_in.T,q_in[periodid,0:10],0)
+    p_coll = np.vstack((p_coll,p_temp))
+    q_coll = np.vstack((q_coll,q_temp))
+
+p_coll = p_coll[1:,:]
+q_coll = q_coll[1:,:]    
+
+# We need to set the plot limits, they will not autoscale
+# check http://matplotlib.org/1.4.2/examples/pylab_examples/line_collection2.html
+ax = axes()
+ax.set_xlim((amin(q_coll),amax(q_coll)))
+ax.set_ylim((amin(p_coll),amax(p_coll)))
 
 # so far code assumes that we are only uploading one file
 # to add: 
