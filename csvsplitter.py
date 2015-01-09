@@ -12,7 +12,6 @@ where DUID is the generator code
 
 @author: kpetruskevicius
 """
-
 import csv
 import os
 def splitter(source):
