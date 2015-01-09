@@ -2,14 +2,16 @@
 """
 Created on Wed Oct 29 02:49:53 2014
 
+This file creates Generator and day specific files with quantitty and price data:
+The data source is the PUBLIC_YESTBID_*.csv files
+The name structure of the csv files is as follows:
+
+DUID_q/p_YYYY_MM_DD.csv
+
+where DUID is the generator code
+
 @author: kpetruskevicius
 """
-
-
-
-
-
-
 
 import csv
 import os
