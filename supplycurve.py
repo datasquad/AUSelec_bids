@@ -15,9 +15,9 @@ and generates supply curves
 import os
 #import numpy as np
 import pandas as pd
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from pylab import *
-from matplotlib.collections import LineCollection
+#from matplotlib.collections import LineCollection
 
 
 def plot_supply(in_p, in_q, pr = 0):
@@ -70,7 +70,7 @@ path = "O://elec//bids//gen_date_data//"
 folder = os.listdir(path) #retrieves a list of files in relevant directory
 
 # Selection criteria
-filter_DUID = "GORDON"
+filter_DUID = "BBTHREE2"
 filter_YYYY = "2013"
 filter_MM   = "11"
 filter_DD   = "03"
@@ -121,16 +121,17 @@ price_cols = ['PRICEBAND1','PRICEBAND2','PRICEBAND3','PRICEBAND4','PRICEBAND5',
 quant_cols = ['BANDAVAIL1','BANDAVAIL2','BANDAVAIL3','BANDAVAIL4','BANDAVAIL5',
                   'BANDAVAIL6','BANDAVAIL7','BANDAVAIL8','BANDAVAIL9','BANDAVAIL10','PERIODID','MAXAVAIL']
 
-periodid = 15   # choose the period of the day
+periodid = 25   # choose the period of the day
 
 p_coll = range(20)
 q_coll = range(20)
 
 for i in range(ns):
+                # extract the price and quantity data for the relevant bidversion
     p_in = p_df.ix[p_df.ix[:,'BIDVERSIONNO']==(bids[i]),price_cols].values
     q_in = q_df.ix[q_df.ix[:,'BIDVERSIONNO']==(bids[i]),quant_cols].values
 
-    [p_temp,q_temp] = plot_supply(p_in.T,q_in[periodid,0:10],0)
+    [p_temp,q_temp] = plot_supply(p_in.T,q_in[periodid,0:10],1)
     p_coll = np.vstack((p_coll,p_temp))
     q_coll = np.vstack((q_coll,q_temp))
 
@@ -139,9 +140,13 @@ q_coll = q_coll[1:,:]
 
 # We need to set the plot limits, they will not autoscale
 # check http://matplotlib.org/1.4.2/examples/pylab_examples/line_collection2.html
-ax = axes()
-ax.set_xlim((amin(q_coll),amax(q_coll)))
-ax.set_ylim((amin(p_coll),amax(p_coll)))
+#ax = axes()
+#ax.set_xlim((amin(q_coll),amax(q_coll)))
+#ax.set_ylim((amin(p_coll),amax(p_coll)))
+
+#plt.axis([amin(q_coll)-5,amax(q_coll)+5, amin(p_coll)-100,amax(p_coll)+100])
+#plt.plot(q_coll.T,p_coll.T,lw=2)
+#plt.show()
 
 # so far code assumes that we are only uploading one file
 # to add: 
