@@ -23,11 +23,11 @@ path = os.getcwd() + "/"
 folder = os.listdir(path) #retrieves a list of files in relevant directory
 
 generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
-region = ['SA1']#, 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
+region = ['SA1', 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
 dispatch_type = [ 'Network Service Provider', 'Generator', 'Generator ', 'Load Norm Off','']
 category = ['Market', 'Non-Market', '']
 classification = [ 'Non-Scheduled', 'Scheduled', 'Semi-Scheduled', '']
-fuel_source_primary = [ 'Fossil']#, 'Renewable/ Biomass / Waste', 'Hydro', 'Fuel Oil', '', 'Wind', 'Biomass', 'Renewable', 'Solar', 'Landfill, Biogas', 'Landfill / Biogas', '']
+fuel_source_primary = [ 'Fossil', 'Renewable/ Biomass / Waste', 'Hydro', 'Fuel Oil', '', 'Wind', 'Biomass', 'Renewable', 'Solar', 'Landfill, Biogas', 'Landfill / Biogas', '']
 fuel_source_descriptor = [ 'Diesel', 'Brown Coal', 'Coal Seam Methane', 'Landfill Methane / Landfill Gas', 'Natural Gas', 'Water', '', 'Black Coal', 'Wind', 'Bagasse', 'Landfill Gas', 'Solar PV', 'Waste Coal Mine Gas', 'Natural Gas / Diesel', 'Kerosene', 'Landfill, Biogas', 'Hydro', 'Coal Tailings', 'Sewerage/Waste Water', 'Macadamia Nut Shells', 'Natural Gas / Fuel Oil', 'Landfill / Biogas', '']
 technology_type_primary = [ 'Combustion', '', 'Renewable', 'Wind', '']
 technology_type_descriptor = [ 'Compression Reciprocating Engine', 'Steam Sub-Critical', 'Spark Ignition Reciprocating Engine', '', 'Open Cycle Gas turbines (OCGT)', 'Hydro - Gravity', 'Combined Cycle Gas Turbine (CCGT)', 'Run of River', 'Wind - Onshore', 'Steam - sub critical', 'Spark Ignition', 'Steam Super Critical', 'PV - Panels', 'Landfill, Biogas', 'Photovoltaic Flat Panel', 'Closed Cycle Gas Turbines (CCGT)', 'Steam - Super heated', 'Hydro - pump storage', '']
@@ -180,34 +180,48 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
     countnew = 0
     for genr in filter_DUIDs:
         if countnew == 0:
-            bidv = (p_df.loc[p_df.loc[:,"DUID"]==genr,:].loc[:,'BIDVERSIONNO'])
+            #print genr
+            #bidv = (p_df.loc[p_df.loc[:,"DUID"]==genr,:].loc[:,'BIDVERSIONNO'])
             maxp = mnmx(p_df.loc[p_df.loc[:,"DUID"]==genr,:].loc[:,'BIDVERSIONNO'])
             p_in = p_df.loc[p_df.loc[:,'BIDVERSIONNO']==maxp,price_cols].values
             q_in = q_df.loc[q_df.loc[:,'BIDVERSIONNO']==maxp,quant_cols].values
             q_in = q_in[periodid:periodid+1]
-            p_in = np.append(p_in,[0])
+            p_in = np.append(p_in[0],[0])
             q_in = np.append(q_in,[0])
             p_in = p_in[:-1]
             q_in = q_in[:-1]
             countnew = countnew +1
+            #print p_in
 
         else:
-            bidv = (p_df.loc[p_df.loc[:,"DUID"]==genr,:].loc[:,'BIDVERSIONNO'])
-            maxp2 = mnmx(p_df.loc[p_df.loc[:,"DUID"]==genr,:].loc[:,'BIDVERSIONNO'])
-            p2_in = p_df.loc[p_df.loc[:,'BIDVERSIONNO']==maxp2,price_cols]
-            q2_in = q_df.loc[q_df.loc[:,'BIDVERSIONNO']==maxp2,quant_cols]
-            p_in = np.append(p_in,p2_in)
+            #print genr
+            p2_df = p_df.loc[p_df.loc[:,"DUID"]==genr,:]
+            q2_df = q_df.loc[q_df.loc[:,"DUID"]==genr,:]
+            maxp2 = mnmx(p2_df.loc[:,'BIDVERSIONNO'])
+            p2_in = p2_df.loc[p2_df.loc[:,'BIDVERSIONNO']==maxp2,price_cols].values
+            q2_in = q2_df.loc[q2_df.loc[:,'BIDVERSIONNO']==maxp2,quant_cols].values
+            p_in = np.append(p_in,p2_in[0])
             q_in = np.append(q_in,q2_in[periodid:periodid+1])
-            countnew = countnew + 1
+            #print p2_in
+            #print len(p_in)
+            #print len(q_in)
+    
     s = p_in.argsort()
     p_in = p_in[s]
     q_in = q_in[s]
     vectors.p_in = p_in
     vectors.q_in = q_in
-    vectors.bidv = bidv
+    #vectors.bidv = bidv
 # Selection criteria
+DUIDsn=[]
+for genrprsr in DUID_13:
+        for fn in folder: # looping through every name in the list
+            if (genrprsr + "_p_") in fn:
+                if genrprsr not in DUIDsn:
+                    DUIDsn.append(genrprsr)                
 
-DUID = ["VP5"]
+DUID = ['VP5']
+
 YYYY = "2014"
 MM   = "12"
 DD   = "04"
@@ -219,21 +233,15 @@ quant_cols = ['BANDAVAIL1','BANDAVAIL2','BANDAVAIL3','BANDAVAIL4','BANDAVAIL5',
                   'BANDAVAIL6','BANDAVAIL7','BANDAVAIL8','BANDAVAIL9','BANDAVAIL10']#,'PERIODID','MAXAVAIL']
 
 # globalizing local variables
-our_filter(DUID,YYYY,MM,DD)
-
+our_filter(DUIDsn,YYYY,MM,DD)
 p_df = our_filter.p_df
 q_df = our_filter.q_df
-
-vectors(DUID,np.min,20)
-
+vectors(DUIDsn,np.max,20)
 p_in = vectors.p_in
-
 q_in = vectors.q_in
-bidv = vectors.bidv
+#bidv = vectors.bidv
+plot_supply(p_in,q_in,1)
 
-plot_supply(p_in,q_in,1)
-vectors(DUID,np.max, 20)
-plot_supply(p_in,q_in,1)
 
 """for i in range(ns):
                 # extract the price and quantity data for the relevant bidversion
