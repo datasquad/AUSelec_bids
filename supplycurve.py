@@ -23,9 +23,9 @@ path = os.getcwd() + "/"
 folder = os.listdir(path) #retrieves a list of files in relevant directory
 
 generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
-region = ['SA1', 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
+region = ['SA1']# 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
 dispatch_type = [ 'Network Service Provider', 'Generator', 'Generator ', 'Load Norm Off','']
-category = ['Market', 'Non-Market', '']
+category = ['Market']# 'Non-Market', '']
 classification = [ 'Non-Scheduled', 'Scheduled', 'Semi-Scheduled', '']
 fuel_source_primary = [ 'Fossil', 'Renewable/ Biomass / Waste', 'Hydro', 'Fuel Oil', '', 'Wind', 'Biomass', 'Renewable', 'Solar', 'Landfill, Biogas', 'Landfill / Biogas', '']
 fuel_source_descriptor = [ 'Diesel', 'Brown Coal', 'Coal Seam Methane', 'Landfill Methane / Landfill Gas', 'Natural Gas', 'Water', '', 'Black Coal', 'Wind', 'Bagasse', 'Landfill Gas', 'Solar PV', 'Waste Coal Mine Gas', 'Natural Gas / Diesel', 'Kerosene', 'Landfill, Biogas', 'Hydro', 'Coal Tailings', 'Sewerage/Waste Water', 'Macadamia Nut Shells', 'Natural Gas / Fuel Oil', 'Landfill / Biogas', '']
@@ -205,10 +205,12 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
             #print p2_in
             #print len(p_in)
             #print len(q_in)
-    
     s = p_in.argsort()
     p_in = p_in[s]
     q_in = q_in[s]
+    p_in = p_in[p_in>0]
+    q_in = q_in[p_in>0]
+    p_in = log(p_in)
     vectors.p_in = p_in
     vectors.q_in = q_in
     #vectors.bidv = bidv
@@ -241,7 +243,14 @@ p_in = vectors.p_in
 q_in = vectors.q_in
 #bidv = vectors.bidv
 plot_supply(p_in,q_in,1)
-
+our_filter(DUIDsn,YYYY,MM,DD)
+p_df = our_filter.p_df
+q_df = our_filter.q_df
+vectors(DUIDsn,np.min,20)
+p_in = vectors.p_in
+q_in = vectors.q_in
+#bidv = vectors.bidv
+plot_supply(p_in,q_in,1)
 
 """for i in range(ns):
                 # extract the price and quantity data for the relevant bidversion
