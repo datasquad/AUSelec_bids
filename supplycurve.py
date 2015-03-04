@@ -39,7 +39,6 @@ max_cap = [ '4', '30', '20', '165', '55', '1', '47', '3', '13', '-', '2', '37', 
 max_roc_min = [ '17', '4', '3', '200', '40', '140', '10', '25', '201', '60', '35', '43', '6', '77', '100', '110', '12', '34', '29', '0', '133', '20', '18', '15', '30', '57', '180', ' - ', '47', '44', '2', '23', '5', '157', '32', '118', '108', '116', '840', '16', '90', '13', '33', '31', '28', '450', '7', '41', '26', '9', '50', '92', '96', '320', '600', '75', '120', '49', '79', '76', '81', '36', '']
 DUID_13 =[] # just an empty list. 
 gen=[] # another list
-
 generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
 for i in generator_list: # for i means for every line. 
     if i[2] in region: # MR . question for Karolis. If it is not in the region, then false, then quit?
@@ -57,6 +56,22 @@ for i in generator_list: # for i means for every line.
                                                     if i[15] in max_cap:
                                                         if i[16] in max_roc_min:
                                                             DUID_13.append(i[13])
+
+def pricedemand(region,YYYY,MM,DD,period):
+    selector = csv.reader(open("trdprd.csv", "rU"), delimiter=',')
+    for q in selector:
+        if period == q[1]:
+            k = YYYY+ "/"+MM+"/"+DD+ " "+q[0]+":00"
+    for i in folder:
+        if region in i and YYYY in i and MM in i:
+            reader = csv.reader(open(i, "rb"), delimiter=',')
+            for m in reader:
+                if k in m:
+
+                    pricedemand.priced = m[3]
+                    pricedemand.quantityd = m[2]
+        
+    
                                                                                             
 
 def our_filter(filter_DUID,filter_YYYY,filter_MM,filter_DD): # This will use our filter and add the relevant names. 
@@ -132,7 +147,7 @@ def our_filter(filter_DUID,filter_YYYY,filter_MM,filter_DD): # This will use our
     our_filter.p_df = p_df
     our_filter.q_df = q_df
 
-def plot_supply(in_p, in_q, pr = 0):
+def plot_supply(in_p, in_q,fcp,fcq, pr = 0):
     # this function plots a supply curve
     # input: (i) array with ordered price bands, (one dimensional array)
     #        (ii) array with ordered quantities to price bands
@@ -171,7 +186,10 @@ def plot_supply(in_p, in_q, pr = 0):
         plt.xlabel('Quantity')
         plt.ylabel('Price')
         plt.title('Electricity Supply Curve',fontsize=20)
-        plt.plot(temp_q,temp_p,'r')
+        plt.plot(temp_q,temp_p,'r',linewidth = 2.0)
+        fcq = float(fcq)
+        fcp = float(fcp)
+        plt.scatter(fcq,fcp)
         plt.show()
     
     return temp_p,temp_q 
@@ -208,9 +226,9 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
     s = p_in.argsort()
     p_in = p_in[s]
     q_in = q_in[s]
-    p_in = p_in[p_in>0]
-    q_in = q_in[p_in>0]
-    p_in = log(p_in)
+#    p_in = p_in[p_in>0]
+#    q_in = q_in[p_in>0]
+#    p_in = log(p_in)
     vectors.p_in = p_in
     vectors.q_in = q_in
     #vectors.bidv = bidv
@@ -227,6 +245,8 @@ DUID = ['VP5']
 YYYY = "2014"
 MM   = "12"
 DD   = "04"
+period = 20
+
 
 price_cols = ['PRICEBAND1','PRICEBAND2','PRICEBAND3','PRICEBAND4','PRICEBAND5',
                   'PRICEBAND6','PRICEBAND7','PRICEBAND8','PRICEBAND9','PRICEBAND10']
@@ -235,23 +255,25 @@ quant_cols = ['BANDAVAIL1','BANDAVAIL2','BANDAVAIL3','BANDAVAIL4','BANDAVAIL5',
                   'BANDAVAIL6','BANDAVAIL7','BANDAVAIL8','BANDAVAIL9','BANDAVAIL10']#,'PERIODID','MAXAVAIL']
 
 # globalizing local variables
+pricedemand('SA1',YYYY,MM,DD,str(period))
+priced = pricedemand.priced
+quantityd = pricedemand.quantityd
 our_filter(DUIDsn,YYYY,MM,DD)
 p_df = our_filter.p_df
 q_df = our_filter.q_df
-vectors(DUIDsn,np.max,20)
+vectors(DUIDsn,np.max,period)
 p_in = vectors.p_in
 q_in = vectors.q_in
 #bidv = vectors.bidv
-plot_supply(p_in,q_in,1)
+plot_supply(p_in,q_in,priced,quantityd,1)
 our_filter(DUIDsn,YYYY,MM,DD)
 p_df = our_filter.p_df
 q_df = our_filter.q_df
-vectors(DUIDsn,np.min,20)
+vectors(DUIDsn,np.min,period)
 p_in = vectors.p_in
 q_in = vectors.q_in
 #bidv = vectors.bidv
-plot_supply(p_in,q_in,1)
-
+plot_supply(p_in,q_in,priced,quantityd,1)
 """for i in range(ns):
                 # extract the price and quantity data for the relevant bidversion
     p_in = p_df.ix[p_df.ix[:,'BIDVERSIONNO']==(bids[i]),price_cols].values
