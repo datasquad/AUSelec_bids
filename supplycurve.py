@@ -12,34 +12,23 @@ and generates supply curves
 @author: ralffbecker
 """
 
-"""
-limit graph - Max axis, min axis
-aggregate price dot demand - Actual 
- forecast relative to dispatch - Frequency of bids at t-12 t-11, etc...
- where changes happen 
- rebids close to action
- how many rebids per generator
- size max 
- count bids 
- average prices.
- Quantity weighted average
-"""
-
 import os
 #import numpy as np
 import pandas as pd
+import urllib
 import matplotlib.pyplot as plt #from matplotlib.collections import LineCollection
 from pylab import *
 import csv
-import statsmodels.api as sm
+
 
 path = os.getcwd() + "/" # get he current working directory. 
 folder = os.listdir(path) #retrieves a list of files in relevant directory
 
 generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
 region = ['SA1', 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
+participant = ['EnerNOC Pty Ltd','LUMO Generation SA Pty Ltd','Alcoa of Australia Limited','EDL Group Operations Pty Ltd','Aurora Energy (Tamar Valley) Pty Ltd trading as AETV Power','AGL Hydro Partnership','Ergon Energy Queensland Pty Ltd','Stanwell Corporation Limited','Basslink Pty Ltd','Hydro-Electric Corporation trading as Hydro Tasmania','AGL Macquarie Pty Limited','Origin Energy Electricity Limited','Snowy Hydro Limited','Boco Rock Wind Farm Pty Ltd','NewGen Braemar 2 Partnership','Braemar Power Project Pty Ltd','EDL LFG (Vic) Pty Ltd','Cape Byron Management Pty Ltd','Essential Energy','Delta Electricity','EDL LFG (Qld) Pty Ltd','GSP Energy Pty Ltd','CS Energy Limited','Callide Power Trading Pty Limited','Canunda Power Pty Ltd','Infigen Energy  Holdings Pty Ltd','Infigen Energy Markets Pty Limited','Cathedral Rocks Wind Farm Pty Ltd','Pacific Hydro Challicum Hills Pty Ltd','Pacific Hydro Clements Gap Pty Ltd','Energy Pacific (Vic) Pty Ltd','QGC Sales Qld Pty Ltd','EDL LFG (VIC) Pty Ltd','Synergen Power Pty Limited','LMS Energy Pty Ltd','EDL LFG (NSW) Pty Ltd','Pacific Hydro Investments Pty Ltd','Energy Brix Australia Corporation Pty Ltd','EDL CSM (QLD) Pty Ltd','Envirogen (Oaky) Pty Limited','AGL Sales (Queensland Electricity) Pty Limited','New Gullen Range Wind Farm Pty Ltd','Gunning Wind Energy Developments Pty Ltd','Lumo Energy Australia Pty Ltd','EnergyAustralia Pty Ltd','Hazelwood Power','Red Energy Pty Limited','EDL LFG (SA) Pty Ltd','Wilmar Sugar Pty Ltd','Ecogen Energy Pty Ltd','Lake Bonney Wind Power Pty Ltd','AGL Loy Yang Marketing Pty Ltd','IPM Australia Limited ','Tasmanian Irrigation Pty Ltd','Millmerran Energy Trader Pty Ltd','EDL Projects (Australia) Pty Ltd','Mortons Lane Windfarm Pty Limited','Mt Mercer Windfarm Pty Ltd','Mt Millar Wind Farm Pty Ltd','Flinders Operating Services Pty Ltd','Pelican Point Power Limited','Pioneer Sugar Mills Pty Ltd','Pacific Hydro Portland Wind Farm Pty Ltd','Mackay Sugar Limited','Redbank Project Pty Limited','FPC 30 Limited (as Trustee for the FPC Green Trust)','FRV Royalla Solar Farm Pty Ltd','Diamond Energy Pty Ltd ','Marubeni Australia Power Services Pty Ltd','Snowtown Wind Farm Stage 2 Pty ltd ','Snowtown Wind Farm Pty Ltd','Progressive Green Pty Ltd','Secure Energy Pty Ltd','Starfish Hill Wind Farm Pty Ltd ','NovaPower Pty Ltd','EnviroGen Pty Limited','Toora Wind Farm Pty Ltd ','AGL SA Generation Pty Limited ','Origin Energy Uranquinty Power Pty Ltd','Veolia Environmental Services (Australia) Pty Ltd','Waterloo Wind Farm Pty Ltd','Pyrenees Wind Energy Development Pty Ltd','SANTOS NSW (NARRABRI POWER) PTY LTD ', 'Narrabri Power Limited','Windy Hill Wind Farm Pty Ltd ','Woodlawn Wind Pty Ltd','EnergyAustralia Yallourn Pty Ltd','RTA Yarwun Pty Ltd', '']
 dispatch_type = [ 'Network Service Provider', 'Generator', 'Generator ', 'Load Norm Off','']
-category = ['Market']# 'Non-Market', '']
+category = ['Market', 'Non-Market', '']
 classification = [ 'Non-Scheduled', 'Scheduled', 'Semi-Scheduled', '']
 fuel_source_primary = [ 'Fossil', 'Renewable/ Biomass / Waste', 'Hydro', 'Fuel Oil', '', 'Wind', 'Biomass', 'Renewable', 'Solar', 'Landfill, Biogas', 'Landfill / Biogas', '']
 fuel_source_descriptor = [ 'Diesel', 'Brown Coal', 'Coal Seam Methane', 'Landfill Methane / Landfill Gas', 'Natural Gas', 'Water', '', 'Black Coal', 'Wind', 'Bagasse', 'Landfill Gas', 'Solar PV', 'Waste Coal Mine Gas', 'Natural Gas / Diesel', 'Kerosene', 'Landfill, Biogas', 'Hydro', 'Coal Tailings', 'Sewerage/Waste Water', 'Macadamia Nut Shells', 'Natural Gas / Fuel Oil', 'Landfill / Biogas', '']
@@ -53,7 +42,6 @@ max_cap = [ '4', '30', '20', '165', '55', '1', '47', '3', '13', '-', '2', '37', 
 max_roc_min = [ '17', '4', '3', '200', '40', '140', '10', '25', '201', '60', '35', '43', '6', '77', '100', '110', '12', '34', '29', '0', '133', '20', '18', '15', '30', '57', '180', ' - ', '47', '44', '2', '23', '5', '157', '32', '118', '108', '116', '840', '16', '90', '13', '33', '31', '28', '450', '7', '41', '26', '9', '50', '92', '96', '320', '600', '75', '120', '49', '79', '76', '81', '36', '']
 DUID_13 =[] # just an empty list. 
 gen=[] # another list
-
 generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
 for i in generator_list: # for i means for every line. 
     if i[2] in region: # MR . question for Karolis. If it is not in the region, then false, then quit?
@@ -70,26 +58,27 @@ for i in generator_list: # for i means for every line.
                                                 if i[14] in reg_cap:
                                                     if i[15] in max_cap:
                                                         if i[16] in max_roc_min:
-                                                            DUID_13.append(i[13])
+                                                            if i[0] in participant:
+                                                                DUID_13.append(i[13])
+    
+def pricedemand(region,YYYY,MM,DD,period):
+    selector = csv.reader(open("trdprd.csv", "rU"), delimiter=',')
+    for q in selector:
+        if period == q[1]:
+            k = YYYY+ "/"+MM+"/"+DD+ " "+q[0]+":00"
+    name = "DATA"+YYYY+MM+"_"+region+".csv"
+    link = "http://www.nemweb.com.au/mms.GRAPHS/data/"+name
+    if name not in folder:
+        targeturl = urllib.URLopener()
+        targeturl.retrieve(link, link[41:])
+    reader = csv.reader(open(name, "rb"), delimiter=',')
+    for m in reader:
+        if k in m:
+            pricedemand.priced = m[3]
+            pricedemand.quantityd = m[2]
+        
+    
                                                                                             
-
-#read = pd.read_csv(path+"Empty.CSV")
-#
-#def corrbidnumsize(filter_DUIDs):
-#    global read    
-#    for generator in filter_DUIDs:
-#        for fina in folder:
-#            if generator in fina:
-#                if "_p_" in fina:
-#                    print fina
-#                    make = pd.read_csv(path+fina)
-#                    for i in make:
-#                        print i
-#                    read = read.append(make)
-#                    
-#corrbidnumsize(DUIDsn)                        
-#                    
-                    
 
 def our_filter(filter_DUID,filter_YYYY,filter_MM,filter_DD): # This will use our filter and add the relevant names. 
     countq = 0 # aggregator 
@@ -164,7 +153,7 @@ def our_filter(filter_DUID,filter_YYYY,filter_MM,filter_DD): # This will use our
     our_filter.p_df = p_df
     our_filter.q_df = q_df
 
-def plot_supply(in_p, in_q, pr = 0):
+def plot_supply(in_p, in_q,fcp,fcq, pr = 0):
     # this function plots a supply curve
     # input: (i) array with ordered price bands, (one dimensional array)
     #        (ii) array with ordered quantities to price bands
@@ -202,19 +191,16 @@ def plot_supply(in_p, in_q, pr = 0):
     if pr: # if we want to print. 
         plt.xlabel('Quantity')
         plt.ylabel('Price')
-#        plt.ylim((4,10))
-#        plt.xlim((1100,1700))
         plt.title('Electricity Supply Curve',fontsize=20)
-        plt.plot(temp_q,temp_p,'r')
+        plt.plot(temp_q,temp_p,'r',linewidth = 2.0)
+        fcq = float(fcq)
+        fcp = float(fcp)
+        #plt.ylim((fcp-100,fcp+100))
+        #plt.xlim((fcq-100,fcq+100))
+        plt.scatter(fcq,fcp)
         plt.show()
     
     return temp_p,temp_q 
-
-#hola = p_df.loc[:,'BIDVERSIONNO']==2
-#print(hola)
-
-
-        
 
 def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
     countnew = 0
@@ -248,6 +234,7 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
     s = p_in.argsort()
     p_in = p_in[s]
     q_in = q_in[s]
+    
 #    p_in = p_in[p_in>0]
 #    q_in = q_in[p_in>0]
 #    p_in = log(p_in)
@@ -262,11 +249,13 @@ for genrprsr in DUID_13:
                 if genrprsr not in DUIDsn:
                     DUIDsn.append(genrprsr)                
 
-DUID = ['YARWUN']
+DUID = ['VP5']
 
-YYYY = "2015"
-MM   = "02"
-DD   = "25"
+YYYY = "2014"
+MM   = "12"
+DD   = "04"
+period = 20
+
 
 price_cols = ['PRICEBAND1','PRICEBAND2','PRICEBAND3','PRICEBAND4','PRICEBAND5',
                   'PRICEBAND6','PRICEBAND7','PRICEBAND8','PRICEBAND9','PRICEBAND10']
@@ -275,83 +264,26 @@ quant_cols = ['BANDAVAIL1','BANDAVAIL2','BANDAVAIL3','BANDAVAIL4','BANDAVAIL5',
                   'BANDAVAIL6','BANDAVAIL7','BANDAVAIL8','BANDAVAIL9','BANDAVAIL10']#,'PERIODID','MAXAVAIL']
 
 # globalizing local variables
+pricedemand(region[0],YYYY,MM,DD,str(period))
+priced = pricedemand.priced
+quantityd = pricedemand.quantityd
 our_filter(DUIDsn,YYYY,MM,DD)
 p_df = our_filter.p_df
 q_df = our_filter.q_df
-vectors(DUIDsn,np.max,20)
+p_df.to_csv('hiki.csv', encoding='utf-8')
+vectors(DUIDsn,np.max,period)
 p_in = vectors.p_in
 q_in = vectors.q_in
 #bidv = vectors.bidv
-#plot_supply(p_in,q_in,1)
+plot_supply(p_in,q_in,priced,quantityd,1)
 our_filter(DUIDsn,YYYY,MM,DD)
 p_df = our_filter.p_df
 q_df = our_filter.q_df
-vectors(DUIDsn,np.min,20)
+vectors(DUIDsn,np.min,period)
 p_in = vectors.p_in
 q_in = vectors.q_in
 #bidv = vectors.bidv
-#plot_supply(p_in,q_in,1)
-
-p_df.to_csv('Empty.CSV', encoding='utf-8')
-
-#print(DUIDsn) #.remove("-")
-
-
-haha = []
-hihi = []
-def a(filtter):
-    global haha
-    global hihi
-    for generator in filtter:
-        print generator
-        make = p_df.loc[:, "DUID"]==generator
-        remake = p_df.loc[make, :]
-        rere = len(remake.index)
-        print rere
-        haha.append(rere)
-        generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
-        for line in generator_list:
-            if generator in line:
-                hihi.append(line[14])
-                print line[14]
-#    print haha
-    print hihi
-        
-#                either14th or 15
-                
-        
-        
-        
-        
-        
-#        Generatortimes = sizeoftable
-        
-#        haha = haha.append[make]
-#        print remake
-a(DUIDsn)        
-#haha.remove("-")
-while "-" in hihi:
-    hihi.remove("-")
-hihi.remove("82.8")     
-hihi.remove("_")
-hihi.remove("")
-results = sm.OLS(haha,hihi).fit()
-
-print results.summary()
-
-X_plot = np.linspace(0,False)
-plt.plot(X_plot, X_plot*results.params[0] + results.params[1])
-
-plt.show()
-plt.scatter(hihi,haha)
-plt.ylim((0,50))
-plt.xlim((0, 1000))
-plt.show()        
-
-#hello = p_df.loc
-
-
-
+plot_supply(p_in,q_in,priced,quantityd,1)
 
 """for i in range(ns):
                 # extract the price and quantity data for the relevant bidversion
@@ -369,6 +301,7 @@ q_coll = range(20*our_filter.countp)
 p_coll = p_coll[1:,:]
 q_coll = q_coll[1:,:]    
 """
+
 # We need to set the plot limits, they will not autoscale
 # check http://matplotlib.org/1.4.2/examples/pylab_examples/line_collection2.html
 #ax = axes()
