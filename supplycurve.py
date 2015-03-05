@@ -12,18 +12,32 @@ and generates supply curves
 @author: ralffbecker
 """
 
+"""
+limit graph - Max axis, min axis
+aggregate price dot demand - Actual 
+ forecast relative to dispatch - Frequency of bids at t-12 t-11, etc...
+ where changes happen 
+ rebids close to action
+ how many rebids per generator
+ size max 
+ count bids 
+ average prices.
+ Quantity weighted average
+"""
+
 import os
 #import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt #from matplotlib.collections import LineCollection
 from pylab import *
 import csv
+import statsmodels.api as sm
 
 path = os.getcwd() + "/" # get he current working directory. 
 folder = os.listdir(path) #retrieves a list of files in relevant directory
 
 generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
-region = ['SA1']# 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
+region = ['SA1', 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
 dispatch_type = [ 'Network Service Provider', 'Generator', 'Generator ', 'Load Norm Off','']
 category = ['Market']# 'Non-Market', '']
 classification = [ 'Non-Scheduled', 'Scheduled', 'Semi-Scheduled', '']
@@ -58,6 +72,24 @@ for i in generator_list: # for i means for every line.
                                                         if i[16] in max_roc_min:
                                                             DUID_13.append(i[13])
                                                                                             
+
+#read = pd.read_csv(path+"Empty.CSV")
+#
+#def corrbidnumsize(filter_DUIDs):
+#    global read    
+#    for generator in filter_DUIDs:
+#        for fina in folder:
+#            if generator in fina:
+#                if "_p_" in fina:
+#                    print fina
+#                    make = pd.read_csv(path+fina)
+#                    for i in make:
+#                        print i
+#                    read = read.append(make)
+#                    
+#corrbidnumsize(DUIDsn)                        
+#                    
+                    
 
 def our_filter(filter_DUID,filter_YYYY,filter_MM,filter_DD): # This will use our filter and add the relevant names. 
     countq = 0 # aggregator 
@@ -170,11 +202,19 @@ def plot_supply(in_p, in_q, pr = 0):
     if pr: # if we want to print. 
         plt.xlabel('Quantity')
         plt.ylabel('Price')
+#        plt.ylim((4,10))
+#        plt.xlim((1100,1700))
         plt.title('Electricity Supply Curve',fontsize=20)
         plt.plot(temp_q,temp_p,'r')
         plt.show()
     
     return temp_p,temp_q 
+
+#hola = p_df.loc[:,'BIDVERSIONNO']==2
+#print(hola)
+
+
+        
 
 def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
     countnew = 0
@@ -208,9 +248,9 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
     s = p_in.argsort()
     p_in = p_in[s]
     q_in = q_in[s]
-    p_in = p_in[p_in>0]
-    q_in = q_in[p_in>0]
-    p_in = log(p_in)
+#    p_in = p_in[p_in>0]
+#    q_in = q_in[p_in>0]
+#    p_in = log(p_in)
     vectors.p_in = p_in
     vectors.q_in = q_in
     #vectors.bidv = bidv
@@ -222,11 +262,11 @@ for genrprsr in DUID_13:
                 if genrprsr not in DUIDsn:
                     DUIDsn.append(genrprsr)                
 
-DUID = ['VP5']
+DUID = ['YARWUN']
 
-YYYY = "2014"
-MM   = "12"
-DD   = "04"
+YYYY = "2015"
+MM   = "02"
+DD   = "25"
 
 price_cols = ['PRICEBAND1','PRICEBAND2','PRICEBAND3','PRICEBAND4','PRICEBAND5',
                   'PRICEBAND6','PRICEBAND7','PRICEBAND8','PRICEBAND9','PRICEBAND10']
@@ -242,7 +282,7 @@ vectors(DUIDsn,np.max,20)
 p_in = vectors.p_in
 q_in = vectors.q_in
 #bidv = vectors.bidv
-plot_supply(p_in,q_in,1)
+#plot_supply(p_in,q_in,1)
 our_filter(DUIDsn,YYYY,MM,DD)
 p_df = our_filter.p_df
 q_df = our_filter.q_df
@@ -250,7 +290,68 @@ vectors(DUIDsn,np.min,20)
 p_in = vectors.p_in
 q_in = vectors.q_in
 #bidv = vectors.bidv
-plot_supply(p_in,q_in,1)
+#plot_supply(p_in,q_in,1)
+
+p_df.to_csv('Empty.CSV', encoding='utf-8')
+
+#print(DUIDsn) #.remove("-")
+
+
+haha = []
+hihi = []
+def a(filtter):
+    global haha
+    global hihi
+    for generator in filtter:
+        print generator
+        make = p_df.loc[:, "DUID"]==generator
+        remake = p_df.loc[make, :]
+        rere = len(remake.index)
+        print rere
+        haha.append(rere)
+        generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
+        for line in generator_list:
+            if generator in line:
+                hihi.append(line[14])
+                print line[14]
+#    print haha
+    print hihi
+        
+#                either14th or 15
+                
+        
+        
+        
+        
+        
+#        Generatortimes = sizeoftable
+        
+#        haha = haha.append[make]
+#        print remake
+a(DUIDsn)        
+#haha.remove("-")
+while "-" in hihi:
+    hihi.remove("-")
+hihi.remove("82.8")     
+hihi.remove("_")
+hihi.remove("")
+results = sm.OLS(haha,hihi).fit()
+
+print results.summary()
+
+X_plot = np.linspace(0,False)
+plt.plot(X_plot, X_plot*results.params[0] + results.params[1])
+
+plt.show()
+plt.scatter(hihi,haha)
+plt.ylim((0,50))
+plt.xlim((0, 1000))
+plt.show()        
+
+#hello = p_df.loc
+
+
+
 
 """for i in range(ns):
                 # extract the price and quantity data for the relevant bidversion
