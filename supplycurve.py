@@ -234,6 +234,7 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
     s = p_in.argsort()
     p_in = p_in[s]
     q_in = q_in[s]
+    
 #    p_in = p_in[p_in>0]
 #    q_in = q_in[p_in>0]
 #    p_in = log(p_in)
