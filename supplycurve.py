@@ -15,17 +15,20 @@ and generates supply curves
 import os
 #import numpy as np
 import pandas as pd
+import urllib
 import matplotlib.pyplot as plt #from matplotlib.collections import LineCollection
 from pylab import *
 import csv
+
 
 path = os.getcwd() + "/" # get he current working directory. 
 folder = os.listdir(path) #retrieves a list of files in relevant directory
 
 generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
-region = ['SA1']# 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
+region = ['SA1', 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
+participant = ['EnerNOC Pty Ltd','LUMO Generation SA Pty Ltd','Alcoa of Australia Limited','EDL Group Operations Pty Ltd','Aurora Energy (Tamar Valley) Pty Ltd trading as AETV Power','AGL Hydro Partnership','Ergon Energy Queensland Pty Ltd','Stanwell Corporation Limited','Basslink Pty Ltd','Hydro-Electric Corporation trading as Hydro Tasmania','AGL Macquarie Pty Limited','Origin Energy Electricity Limited','Snowy Hydro Limited','Boco Rock Wind Farm Pty Ltd','NewGen Braemar 2 Partnership','Braemar Power Project Pty Ltd','EDL LFG (Vic) Pty Ltd','Cape Byron Management Pty Ltd','Essential Energy','Delta Electricity','EDL LFG (Qld) Pty Ltd','GSP Energy Pty Ltd','CS Energy Limited','Callide Power Trading Pty Limited','Canunda Power Pty Ltd','Infigen Energy  Holdings Pty Ltd','Infigen Energy Markets Pty Limited','Cathedral Rocks Wind Farm Pty Ltd','Pacific Hydro Challicum Hills Pty Ltd','Pacific Hydro Clements Gap Pty Ltd','Energy Pacific (Vic) Pty Ltd','QGC Sales Qld Pty Ltd','EDL LFG (VIC) Pty Ltd','Synergen Power Pty Limited','LMS Energy Pty Ltd','EDL LFG (NSW) Pty Ltd','Pacific Hydro Investments Pty Ltd','Energy Brix Australia Corporation Pty Ltd','EDL CSM (QLD) Pty Ltd','Envirogen (Oaky) Pty Limited','AGL Sales (Queensland Electricity) Pty Limited','New Gullen Range Wind Farm Pty Ltd','Gunning Wind Energy Developments Pty Ltd','Lumo Energy Australia Pty Ltd','EnergyAustralia Pty Ltd','Hazelwood Power','Red Energy Pty Limited','EDL LFG (SA) Pty Ltd','Wilmar Sugar Pty Ltd','Ecogen Energy Pty Ltd','Lake Bonney Wind Power Pty Ltd','AGL Loy Yang Marketing Pty Ltd','IPM Australia Limited ','Tasmanian Irrigation Pty Ltd','Millmerran Energy Trader Pty Ltd','EDL Projects (Australia) Pty Ltd','Mortons Lane Windfarm Pty Limited','Mt Mercer Windfarm Pty Ltd','Mt Millar Wind Farm Pty Ltd','Flinders Operating Services Pty Ltd','Pelican Point Power Limited','Pioneer Sugar Mills Pty Ltd','Pacific Hydro Portland Wind Farm Pty Ltd','Mackay Sugar Limited','Redbank Project Pty Limited','FPC 30 Limited (as Trustee for the FPC Green Trust)','FRV Royalla Solar Farm Pty Ltd','Diamond Energy Pty Ltd ','Marubeni Australia Power Services Pty Ltd','Snowtown Wind Farm Stage 2 Pty ltd ','Snowtown Wind Farm Pty Ltd','Progressive Green Pty Ltd','Secure Energy Pty Ltd','Starfish Hill Wind Farm Pty Ltd ','NovaPower Pty Ltd','EnviroGen Pty Limited','Toora Wind Farm Pty Ltd ','AGL SA Generation Pty Limited ','Origin Energy Uranquinty Power Pty Ltd','Veolia Environmental Services (Australia) Pty Ltd','Waterloo Wind Farm Pty Ltd','Pyrenees Wind Energy Development Pty Ltd','SANTOS NSW (NARRABRI POWER) PTY LTD ', 'Narrabri Power Limited','Windy Hill Wind Farm Pty Ltd ','Woodlawn Wind Pty Ltd','EnergyAustralia Yallourn Pty Ltd','RTA Yarwun Pty Ltd', '']
 dispatch_type = [ 'Network Service Provider', 'Generator', 'Generator ', 'Load Norm Off','']
-category = ['Market']# 'Non-Market', '']
+category = ['Market', 'Non-Market', '']
 classification = [ 'Non-Scheduled', 'Scheduled', 'Semi-Scheduled', '']
 fuel_source_primary = [ 'Fossil', 'Renewable/ Biomass / Waste', 'Hydro', 'Fuel Oil', '', 'Wind', 'Biomass', 'Renewable', 'Solar', 'Landfill, Biogas', 'Landfill / Biogas', '']
 fuel_source_descriptor = [ 'Diesel', 'Brown Coal', 'Coal Seam Methane', 'Landfill Methane / Landfill Gas', 'Natural Gas', 'Water', '', 'Black Coal', 'Wind', 'Bagasse', 'Landfill Gas', 'Solar PV', 'Waste Coal Mine Gas', 'Natural Gas / Diesel', 'Kerosene', 'Landfill, Biogas', 'Hydro', 'Coal Tailings', 'Sewerage/Waste Water', 'Macadamia Nut Shells', 'Natural Gas / Fuel Oil', 'Landfill / Biogas', '']
@@ -55,21 +58,24 @@ for i in generator_list: # for i means for every line.
                                                 if i[14] in reg_cap:
                                                     if i[15] in max_cap:
                                                         if i[16] in max_roc_min:
-                                                            DUID_13.append(i[13])
-
+                                                            if i[0] in participant:
+                                                                DUID_13.append(i[13])
+    
 def pricedemand(region,YYYY,MM,DD,period):
     selector = csv.reader(open("trdprd.csv", "rU"), delimiter=',')
     for q in selector:
         if period == q[1]:
             k = YYYY+ "/"+MM+"/"+DD+ " "+q[0]+":00"
-    for i in folder:
-        if region in i and YYYY in i and MM in i:
-            reader = csv.reader(open(i, "rb"), delimiter=',')
-            for m in reader:
-                if k in m:
-
-                    pricedemand.priced = m[3]
-                    pricedemand.quantityd = m[2]
+    name = "DATA"+YYYY+MM+"_"+region+".csv"
+    link = "http://www.nemweb.com.au/mms.GRAPHS/data/"+name
+    if name not in folder:
+        targeturl = urllib.URLopener()
+        targeturl.retrieve(link, link[41:])
+    reader = csv.reader(open(name, "rb"), delimiter=',')
+    for m in reader:
+        if k in m:
+            pricedemand.priced = m[3]
+            pricedemand.quantityd = m[2]
         
     
                                                                                             
@@ -189,6 +195,8 @@ def plot_supply(in_p, in_q,fcp,fcq, pr = 0):
         plt.plot(temp_q,temp_p,'r',linewidth = 2.0)
         fcq = float(fcq)
         fcp = float(fcp)
+        #plt.ylim((fcp-100,fcp+100))
+        #plt.xlim((fcq-100,fcq+100))
         plt.scatter(fcq,fcp)
         plt.show()
     
@@ -255,12 +263,13 @@ quant_cols = ['BANDAVAIL1','BANDAVAIL2','BANDAVAIL3','BANDAVAIL4','BANDAVAIL5',
                   'BANDAVAIL6','BANDAVAIL7','BANDAVAIL8','BANDAVAIL9','BANDAVAIL10']#,'PERIODID','MAXAVAIL']
 
 # globalizing local variables
-pricedemand('SA1',YYYY,MM,DD,str(period))
+pricedemand(region[0],YYYY,MM,DD,str(period))
 priced = pricedemand.priced
 quantityd = pricedemand.quantityd
 our_filter(DUIDsn,YYYY,MM,DD)
 p_df = our_filter.p_df
 q_df = our_filter.q_df
+p_df.to_csv('hiki.csv', encoding='utf-8')
 vectors(DUIDsn,np.max,period)
 p_in = vectors.p_in
 q_in = vectors.q_in
@@ -274,6 +283,7 @@ p_in = vectors.p_in
 q_in = vectors.q_in
 #bidv = vectors.bidv
 plot_supply(p_in,q_in,priced,quantityd,1)
+
 """for i in range(ns):
                 # extract the price and quantity data for the relevant bidversion
     p_in = p_df.ix[p_df.ix[:,'BIDVERSIONNO']==(bids[i]),price_cols].values
@@ -290,6 +300,7 @@ q_coll = range(20*our_filter.countp)
 p_coll = p_coll[1:,:]
 q_coll = q_coll[1:,:]    
 """
+
 # We need to set the plot limits, they will not autoscale
 # check http://matplotlib.org/1.4.2/examples/pylab_examples/line_collection2.html
 #ax = axes()
