@@ -23,6 +23,7 @@ aggregate price dot demand - Actual
  average prices.
  Quantity weighted average
 """
+#gdcuyn4x
 
 import os
 #import numpy as np
@@ -302,11 +303,11 @@ def a(filtter):
     global haha
     global hihi
     for generator in filtter:
-        print generator
+#        print generator
         make = p_df.loc[:, "DUID"]==generator
         remake = p_df.loc[make, :]
         rere = len(remake.index)
-        print rere
+#        print rere
         haha.append(rere)
         generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
         for line in generator_list:
@@ -334,12 +335,12 @@ while "-" in hihi:
 hihi.remove("82.8")     
 hihi.remove("_")
 hihi.remove("")
-results = sm.OLS(haha,hihi).fit()
-
-print results.summary()
-
-X_plot = np.linspace(0,False)
-plt.plot(X_plot, X_plot*results.params[0] + results.params[1])
+#results = sm.OLS(haha,hihi).fit()
+#
+#print results.summary()
+#
+#X_plot = np.linspace(0,False)
+#plt.plot(X_plot, X_plot*results.params[0] + results.params[1])
 
 plt.show()
 plt.scatter(hihi,haha)
