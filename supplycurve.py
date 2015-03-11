@@ -195,10 +195,10 @@ def plot_supply(in_p, in_q,fcp,fcq, pr = 0):
         plt.plot(temp_q,temp_p,'r',linewidth = 2.0)
         fcq = float(fcq)
         fcp = float(fcp)
-        plt.ylim((fcp-100,fcp+100))
-        plt.xlim((fcq-100,fcq+100))
+        #plt.ylim((fcp-100,fcp+100))
+        #plt.xlim((fcq-100,fcq+100))
         plt.scatter(fcq,fcp)
-        print fcq,fcp
+        #print fcq,fcp
         plt.show()
     
     return temp_p,temp_q 
@@ -212,9 +212,9 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
             maxp = mnmx(p_df.loc[p_df.loc[:,"DUID"]==genr,:].loc[:,'BIDVERSIONNO'])
             p_in = p_df.loc[p_df.loc[:,'BIDVERSIONNO']==maxp,price_cols].values
             q_in = q_df.loc[q_df.loc[:,'BIDVERSIONNO']==maxp,quant_cols].values
-            print q_in
+            #print q_in
             q_in = q_in[periodid:periodid+1] # MR Q Karolis. Does this add a column with this data.
-            print q_in
+            #print q_in
             p_in = np.append(p_in[0],[0])
             q_in = np.append(q_in,[0])
             p_in = p_in[:-1]
@@ -308,6 +308,64 @@ p_in = vectors.p_in
 q_in = vectors.q_in
 #bidv = vectors.bidv
 plot_supply(p_in,q_in,priced,quantityd,1)
+
+p_df.to_csv('Empty.CSV', encoding='utf-8')
+
+#print(DUIDsn) #.remove("-")
+
+
+haha = []
+hihi = []
+def a(filtter):
+    global haha
+    global hihi
+    for generator in filtter:
+#        print generator
+        make = p_df.loc[:, "DUID"]==generator
+        remake = p_df.loc[make, :]
+        rere = len(remake.index)
+#        print rere
+        haha.append(rere)
+        generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
+        for line in generator_list:
+            if generator in line:
+                hihi.append(line[14])
+                print line[14]
+#    print haha
+    print hihi
+        
+#                either14th or 15
+                
+        
+        
+        
+        
+        
+#        Generatortimes = sizeoftable
+        
+#        haha = haha.append[make]
+#        print remake
+a(DUIDsn)        
+#haha.remove("-")
+while "-" in hihi:
+    hihi.remove("-")
+hihi.remove("82.8")     
+hihi.remove("_")
+hihi.remove("")
+#results = sm.OLS(haha,hihi).fit()
+#
+#print results.summary()
+#
+#X_plot = np.linspace(0,False)
+#plt.plot(X_plot, X_plot*results.params[0] + results.params[1])
+
+plt.show()
+plt.scatter(hihi,haha)
+plt.ylim((0,50))
+plt.xlim((0, 1000))
+plt.show()        
+
+#hello = p_df.loc
 
 
 """for i in range(ns):
