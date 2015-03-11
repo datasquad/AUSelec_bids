@@ -25,11 +25,11 @@ path = os.getcwd() + "/" # get he current working directory.
 folder = os.listdir(path) #retrieves a list of files in relevant directory
 
 generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
-region = ['NSW1']    #['SA1']#, 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
+region = ['TAS1']#['SA1', 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
 participant = ['EnerNOC Pty Ltd','LUMO Generation SA Pty Ltd','Alcoa of Australia Limited','EDL Group Operations Pty Ltd','Aurora Energy (Tamar Valley) Pty Ltd trading as AETV Power','AGL Hydro Partnership','Ergon Energy Queensland Pty Ltd','Stanwell Corporation Limited','Basslink Pty Ltd','Hydro-Electric Corporation trading as Hydro Tasmania','AGL Macquarie Pty Limited','Origin Energy Electricity Limited','Snowy Hydro Limited','Boco Rock Wind Farm Pty Ltd','NewGen Braemar 2 Partnership','Braemar Power Project Pty Ltd','EDL LFG (Vic) Pty Ltd','Cape Byron Management Pty Ltd','Essential Energy','Delta Electricity','EDL LFG (Qld) Pty Ltd','GSP Energy Pty Ltd','CS Energy Limited','Callide Power Trading Pty Limited','Canunda Power Pty Ltd','Infigen Energy  Holdings Pty Ltd','Infigen Energy Markets Pty Limited','Cathedral Rocks Wind Farm Pty Ltd','Pacific Hydro Challicum Hills Pty Ltd','Pacific Hydro Clements Gap Pty Ltd','Energy Pacific (Vic) Pty Ltd','QGC Sales Qld Pty Ltd','EDL LFG (VIC) Pty Ltd','Synergen Power Pty Limited','LMS Energy Pty Ltd','EDL LFG (NSW) Pty Ltd','Pacific Hydro Investments Pty Ltd','Energy Brix Australia Corporation Pty Ltd','EDL CSM (QLD) Pty Ltd','Envirogen (Oaky) Pty Limited','AGL Sales (Queensland Electricity) Pty Limited','New Gullen Range Wind Farm Pty Ltd','Gunning Wind Energy Developments Pty Ltd','Lumo Energy Australia Pty Ltd','EnergyAustralia Pty Ltd','Hazelwood Power','Red Energy Pty Limited','EDL LFG (SA) Pty Ltd','Wilmar Sugar Pty Ltd','Ecogen Energy Pty Ltd','Lake Bonney Wind Power Pty Ltd','AGL Loy Yang Marketing Pty Ltd','IPM Australia Limited ','Tasmanian Irrigation Pty Ltd','Millmerran Energy Trader Pty Ltd','EDL Projects (Australia) Pty Ltd','Mortons Lane Windfarm Pty Limited','Mt Mercer Windfarm Pty Ltd','Mt Millar Wind Farm Pty Ltd','Flinders Operating Services Pty Ltd','Pelican Point Power Limited','Pioneer Sugar Mills Pty Ltd','Pacific Hydro Portland Wind Farm Pty Ltd','Mackay Sugar Limited','Redbank Project Pty Limited','FPC 30 Limited (as Trustee for the FPC Green Trust)','FRV Royalla Solar Farm Pty Ltd','Diamond Energy Pty Ltd ','Marubeni Australia Power Services Pty Ltd','Snowtown Wind Farm Stage 2 Pty ltd ','Snowtown Wind Farm Pty Ltd','Progressive Green Pty Ltd','Secure Energy Pty Ltd','Starfish Hill Wind Farm Pty Ltd ','NovaPower Pty Ltd','EnviroGen Pty Limited','Toora Wind Farm Pty Ltd ','AGL SA Generation Pty Limited ','Origin Energy Uranquinty Power Pty Ltd','Veolia Environmental Services (Australia) Pty Ltd','Waterloo Wind Farm Pty Ltd','Pyrenees Wind Energy Development Pty Ltd','SANTOS NSW (NARRABRI POWER) PTY LTD ', 'Narrabri Power Limited','Windy Hill Wind Farm Pty Ltd ','Woodlawn Wind Pty Ltd','EnergyAustralia Yallourn Pty Ltd','RTA Yarwun Pty Ltd', '']
-dispatch_type = [ 'Network Service Provider', 'Generator', 'Generator ', 'Load Norm Off','']
-category = ['Market', 'Non-Market', '']
-classification = [ 'Non-Scheduled', 'Scheduled', 'Semi-Scheduled', '']
+dispatch_type = ['Generator', 'Generator ']#[ 'Network Service Provider', 'Generator', 'Generator ', 'Load Norm Off','']
+category = ['Market'] #'Non-Market', '']
+classification = ['Scheduled']# 'Semi-Scheduled']#[ 'Non-Scheduled', 'Scheduled', 'Semi-Scheduled', '']
 fuel_source_primary = [ 'Fossil', 'Renewable/ Biomass / Waste', 'Hydro', 'Fuel Oil', '', 'Wind', 'Biomass', 'Renewable', 'Solar', 'Landfill, Biogas', 'Landfill / Biogas', '']
 fuel_source_descriptor = [ 'Diesel', 'Brown Coal', 'Coal Seam Methane', 'Landfill Methane / Landfill Gas', 'Natural Gas', 'Water', '', 'Black Coal', 'Wind', 'Bagasse', 'Landfill Gas', 'Solar PV', 'Waste Coal Mine Gas', 'Natural Gas / Diesel', 'Kerosene', 'Landfill, Biogas', 'Hydro', 'Coal Tailings', 'Sewerage/Waste Water', 'Macadamia Nut Shells', 'Natural Gas / Fuel Oil', 'Landfill / Biogas', '']
 technology_type_primary = [ 'Combustion', '', 'Renewable', 'Wind', '']
@@ -42,7 +42,7 @@ max_cap = [ '4', '30', '20', '165', '55', '1', '47', '3', '13', '-', '2', '37', 
 max_roc_min = [ '17', '4', '3', '200', '40', '140', '10', '25', '201', '60', '35', '43', '6', '77', '100', '110', '12', '34', '29', '0', '133', '20', '18', '15', '30', '57', '180', ' - ', '47', '44', '2', '23', '5', '157', '32', '118', '108', '116', '840', '16', '90', '13', '33', '31', '28', '450', '7', '41', '26', '9', '50', '92', '96', '320', '600', '75', '120', '49', '79', '76', '81', '36', '']
 DUID_13 =[] # just an empty list. 
 gen=[] # another list
-generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
+generator_list = csv.reader(open("generators_list.CSV", "rU"), delimiter=',')
 for i in generator_list: # for i means for every line. 
     if i[2] in region: # MR . question for Karolis. If it is not in the region, then false, then quit?
         if i[3] in dispatch_type:
@@ -195,7 +195,7 @@ def plot_supply(in_p, in_q,fcp,fcq, pr = 0):
         plt.plot(temp_q,temp_p,'r',linewidth = 2.0)
         fcq = float(fcq)
         fcp = float(fcp)
-        #plt.ylim((fcp-100,fcp+100))
+        plt.ylim((fcp-100,fcp+100))
         #plt.xlim((fcq-100,fcq+100))
         plt.scatter(fcq,fcp)
         #print fcq,fcp
@@ -276,8 +276,8 @@ DUID = ['VP5']
 
 YYYY = "2014"
 MM   = "12"
-DD   = "05"
-period1 = 23
+DD   = "06"
+period1 = 19
 period = period1-1
 
 
@@ -326,13 +326,13 @@ def a(filtter):
         rere = len(remake.index)
 #        print rere
         haha.append(rere)
-        generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
+        generator_list = csv.reader(open("generators_list.CSV", "rU"), delimiter=',')
         for line in generator_list:
             if generator in line:
                 hihi.append(line[14])
-                print line[14]
+                #print line[14]
 #    print haha
-    print hihi
+    #print hihi
         
 #                either14th or 15
                 
@@ -347,11 +347,11 @@ def a(filtter):
 #        print remake
 a(DUIDsn)        
 #haha.remove("-")
-while "-" in hihi:
-    hihi.remove("-")
-hihi.remove("82.8")     
-hihi.remove("_")
-hihi.remove("")
+#while "-" in hihi:
+#    hihi.remove("-")
+#hihi.remove("82.8")     
+#hihi.remove("_")
+#hihi.remove("")
 #results = sm.OLS(haha,hihi).fit()
 #
 #print results.summary()
