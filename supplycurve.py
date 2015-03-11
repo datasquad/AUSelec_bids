@@ -25,7 +25,7 @@ path = os.getcwd() + "/" # get he current working directory.
 folder = os.listdir(path) #retrieves a list of files in relevant directory
 
 generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
-region = ['SA1', 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
+region = ['NSW1']    #['SA1']#, 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
 participant = ['EnerNOC Pty Ltd','LUMO Generation SA Pty Ltd','Alcoa of Australia Limited','EDL Group Operations Pty Ltd','Aurora Energy (Tamar Valley) Pty Ltd trading as AETV Power','AGL Hydro Partnership','Ergon Energy Queensland Pty Ltd','Stanwell Corporation Limited','Basslink Pty Ltd','Hydro-Electric Corporation trading as Hydro Tasmania','AGL Macquarie Pty Limited','Origin Energy Electricity Limited','Snowy Hydro Limited','Boco Rock Wind Farm Pty Ltd','NewGen Braemar 2 Partnership','Braemar Power Project Pty Ltd','EDL LFG (Vic) Pty Ltd','Cape Byron Management Pty Ltd','Essential Energy','Delta Electricity','EDL LFG (Qld) Pty Ltd','GSP Energy Pty Ltd','CS Energy Limited','Callide Power Trading Pty Limited','Canunda Power Pty Ltd','Infigen Energy  Holdings Pty Ltd','Infigen Energy Markets Pty Limited','Cathedral Rocks Wind Farm Pty Ltd','Pacific Hydro Challicum Hills Pty Ltd','Pacific Hydro Clements Gap Pty Ltd','Energy Pacific (Vic) Pty Ltd','QGC Sales Qld Pty Ltd','EDL LFG (VIC) Pty Ltd','Synergen Power Pty Limited','LMS Energy Pty Ltd','EDL LFG (NSW) Pty Ltd','Pacific Hydro Investments Pty Ltd','Energy Brix Australia Corporation Pty Ltd','EDL CSM (QLD) Pty Ltd','Envirogen (Oaky) Pty Limited','AGL Sales (Queensland Electricity) Pty Limited','New Gullen Range Wind Farm Pty Ltd','Gunning Wind Energy Developments Pty Ltd','Lumo Energy Australia Pty Ltd','EnergyAustralia Pty Ltd','Hazelwood Power','Red Energy Pty Limited','EDL LFG (SA) Pty Ltd','Wilmar Sugar Pty Ltd','Ecogen Energy Pty Ltd','Lake Bonney Wind Power Pty Ltd','AGL Loy Yang Marketing Pty Ltd','IPM Australia Limited ','Tasmanian Irrigation Pty Ltd','Millmerran Energy Trader Pty Ltd','EDL Projects (Australia) Pty Ltd','Mortons Lane Windfarm Pty Limited','Mt Mercer Windfarm Pty Ltd','Mt Millar Wind Farm Pty Ltd','Flinders Operating Services Pty Ltd','Pelican Point Power Limited','Pioneer Sugar Mills Pty Ltd','Pacific Hydro Portland Wind Farm Pty Ltd','Mackay Sugar Limited','Redbank Project Pty Limited','FPC 30 Limited (as Trustee for the FPC Green Trust)','FRV Royalla Solar Farm Pty Ltd','Diamond Energy Pty Ltd ','Marubeni Australia Power Services Pty Ltd','Snowtown Wind Farm Stage 2 Pty ltd ','Snowtown Wind Farm Pty Ltd','Progressive Green Pty Ltd','Secure Energy Pty Ltd','Starfish Hill Wind Farm Pty Ltd ','NovaPower Pty Ltd','EnviroGen Pty Limited','Toora Wind Farm Pty Ltd ','AGL SA Generation Pty Limited ','Origin Energy Uranquinty Power Pty Ltd','Veolia Environmental Services (Australia) Pty Ltd','Waterloo Wind Farm Pty Ltd','Pyrenees Wind Energy Development Pty Ltd','SANTOS NSW (NARRABRI POWER) PTY LTD ', 'Narrabri Power Limited','Windy Hill Wind Farm Pty Ltd ','Woodlawn Wind Pty Ltd','EnergyAustralia Yallourn Pty Ltd','RTA Yarwun Pty Ltd', '']
 dispatch_type = [ 'Network Service Provider', 'Generator', 'Generator ', 'Load Norm Off','']
 category = ['Market', 'Non-Market', '']
@@ -195,9 +195,10 @@ def plot_supply(in_p, in_q,fcp,fcq, pr = 0):
         plt.plot(temp_q,temp_p,'r',linewidth = 2.0)
         fcq = float(fcq)
         fcp = float(fcp)
-        #plt.ylim((fcp-100,fcp+100))
-        #plt.xlim((fcq-100,fcq+100))
+        plt.ylim((fcp-100,fcp+100))
+        plt.xlim((fcq-100,fcq+100))
         plt.scatter(fcq,fcp)
+        print fcq,fcp
         plt.show()
     
     return temp_p,temp_q 
@@ -211,13 +212,16 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
             maxp = mnmx(p_df.loc[p_df.loc[:,"DUID"]==genr,:].loc[:,'BIDVERSIONNO'])
             p_in = p_df.loc[p_df.loc[:,'BIDVERSIONNO']==maxp,price_cols].values
             q_in = q_df.loc[q_df.loc[:,'BIDVERSIONNO']==maxp,quant_cols].values
-            q_in = q_in[periodid:periodid+1] # MR Q Karolis. Does this add a column with this data. 
+            print q_in
+            q_in = q_in[periodid:periodid+1] # MR Q Karolis. Does this add a column with this data.
+            print q_in
             p_in = np.append(p_in[0],[0])
             q_in = np.append(q_in,[0])
             p_in = p_in[:-1]
             q_in = q_in[:-1]
             countnew = countnew +1
             #print p_in
+            
 
         else:
             #print genr
@@ -231,6 +235,22 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
             #print p2_in
             #print len(p_in)
             #print len(q_in)
+    temp = q_in.reshape((-1,11))
+    a = temp[:,0:10]
+    b = temp[:,10] #picks out maxavail
+    #print a
+    b = np.tile(b,(10,1))
+    b = np.transpose(b)
+    c = np.cumsum(a,axis = 1)
+    d = np.minimum(b,c)
+    e = d[:,1:]-d[:,0:-1]
+    f = np.vstack((d[:,0],np.transpose(e)))
+    g = np.transpose(f)
+    final = g.reshape(-1)
+    q_in = final
+    
+    
+
     s = p_in.argsort()
     p_in = p_in[s]
     q_in = q_in[s]
@@ -238,6 +258,8 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
 #    p_in = p_in[p_in>0]
 #    q_in = q_in[p_in>0]
 #    p_in = log(p_in)
+    #print p_in
+    #print q_in
     vectors.p_in = p_in
     vectors.q_in = q_in
     #vectors.bidv = bidv
@@ -247,24 +269,26 @@ for genrprsr in DUID_13:
         for fn in folder: # looping through every name in the list
             if (genrprsr + "_p_") in fn:
                 if genrprsr not in DUIDsn:
-                    DUIDsn.append(genrprsr)                
+                    DUIDsn.append(genrprsr)     
+                    
 
 DUID = ['VP5']
 
 YYYY = "2014"
 MM   = "12"
-DD   = "04"
-period = 20
+DD   = "05"
+period1 = 23
+period = period1-1
 
 
 price_cols = ['PRICEBAND1','PRICEBAND2','PRICEBAND3','PRICEBAND4','PRICEBAND5',
                   'PRICEBAND6','PRICEBAND7','PRICEBAND8','PRICEBAND9','PRICEBAND10']
 
 quant_cols = ['BANDAVAIL1','BANDAVAIL2','BANDAVAIL3','BANDAVAIL4','BANDAVAIL5',
-                  'BANDAVAIL6','BANDAVAIL7','BANDAVAIL8','BANDAVAIL9','BANDAVAIL10']#,'PERIODID','MAXAVAIL']
+                  'BANDAVAIL6','BANDAVAIL7','BANDAVAIL8','BANDAVAIL9','BANDAVAIL10', 'MAXAVAIL']#,'PERIODID','MAXAVAIL']
 
 # globalizing local variables
-pricedemand(region[0],YYYY,MM,DD,str(period))
+pricedemand(region[0],YYYY,MM,DD,str(period1))
 priced = pricedemand.priced
 quantityd = pricedemand.quantityd
 our_filter(DUIDsn,YYYY,MM,DD)
@@ -284,6 +308,7 @@ p_in = vectors.p_in
 q_in = vectors.q_in
 #bidv = vectors.bidv
 plot_supply(p_in,q_in,priced,quantityd,1)
+
 
 """for i in range(ns):
                 # extract the price and quantity data for the relevant bidversion
