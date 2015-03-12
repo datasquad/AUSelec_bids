@@ -19,18 +19,19 @@ import urllib
 import matplotlib.pyplot as plt #from matplotlib.collections import LineCollection
 from pylab import *
 import csv
+from mpl_toolkits.mplot3d import Axes3D
 
 
 path = os.getcwd() + "/" # get he current working directory. 
 folder = os.listdir(path) #retrieves a list of files in relevant directory
 
 generator_list = csv.reader(open("generators_list.CSV", "rb"), delimiter=',')
-region = ['TAS1']#['SA1', 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
+region = ['NSW1']#['SA1'], 'VIC1', 'NSW1', 'QLD1', 'TAS1', 'ACT1']
 participant = ['EnerNOC Pty Ltd','LUMO Generation SA Pty Ltd','Alcoa of Australia Limited','EDL Group Operations Pty Ltd','Aurora Energy (Tamar Valley) Pty Ltd trading as AETV Power','AGL Hydro Partnership','Ergon Energy Queensland Pty Ltd','Stanwell Corporation Limited','Basslink Pty Ltd','Hydro-Electric Corporation trading as Hydro Tasmania','AGL Macquarie Pty Limited','Origin Energy Electricity Limited','Snowy Hydro Limited','Boco Rock Wind Farm Pty Ltd','NewGen Braemar 2 Partnership','Braemar Power Project Pty Ltd','EDL LFG (Vic) Pty Ltd','Cape Byron Management Pty Ltd','Essential Energy','Delta Electricity','EDL LFG (Qld) Pty Ltd','GSP Energy Pty Ltd','CS Energy Limited','Callide Power Trading Pty Limited','Canunda Power Pty Ltd','Infigen Energy  Holdings Pty Ltd','Infigen Energy Markets Pty Limited','Cathedral Rocks Wind Farm Pty Ltd','Pacific Hydro Challicum Hills Pty Ltd','Pacific Hydro Clements Gap Pty Ltd','Energy Pacific (Vic) Pty Ltd','QGC Sales Qld Pty Ltd','EDL LFG (VIC) Pty Ltd','Synergen Power Pty Limited','LMS Energy Pty Ltd','EDL LFG (NSW) Pty Ltd','Pacific Hydro Investments Pty Ltd','Energy Brix Australia Corporation Pty Ltd','EDL CSM (QLD) Pty Ltd','Envirogen (Oaky) Pty Limited','AGL Sales (Queensland Electricity) Pty Limited','New Gullen Range Wind Farm Pty Ltd','Gunning Wind Energy Developments Pty Ltd','Lumo Energy Australia Pty Ltd','EnergyAustralia Pty Ltd','Hazelwood Power','Red Energy Pty Limited','EDL LFG (SA) Pty Ltd','Wilmar Sugar Pty Ltd','Ecogen Energy Pty Ltd','Lake Bonney Wind Power Pty Ltd','AGL Loy Yang Marketing Pty Ltd','IPM Australia Limited ','Tasmanian Irrigation Pty Ltd','Millmerran Energy Trader Pty Ltd','EDL Projects (Australia) Pty Ltd','Mortons Lane Windfarm Pty Limited','Mt Mercer Windfarm Pty Ltd','Mt Millar Wind Farm Pty Ltd','Flinders Operating Services Pty Ltd','Pelican Point Power Limited','Pioneer Sugar Mills Pty Ltd','Pacific Hydro Portland Wind Farm Pty Ltd','Mackay Sugar Limited','Redbank Project Pty Limited','FPC 30 Limited (as Trustee for the FPC Green Trust)','FRV Royalla Solar Farm Pty Ltd','Diamond Energy Pty Ltd ','Marubeni Australia Power Services Pty Ltd','Snowtown Wind Farm Stage 2 Pty ltd ','Snowtown Wind Farm Pty Ltd','Progressive Green Pty Ltd','Secure Energy Pty Ltd','Starfish Hill Wind Farm Pty Ltd ','NovaPower Pty Ltd','EnviroGen Pty Limited','Toora Wind Farm Pty Ltd ','AGL SA Generation Pty Limited ','Origin Energy Uranquinty Power Pty Ltd','Veolia Environmental Services (Australia) Pty Ltd','Waterloo Wind Farm Pty Ltd','Pyrenees Wind Energy Development Pty Ltd','SANTOS NSW (NARRABRI POWER) PTY LTD ', 'Narrabri Power Limited','Windy Hill Wind Farm Pty Ltd ','Woodlawn Wind Pty Ltd','EnergyAustralia Yallourn Pty Ltd','RTA Yarwun Pty Ltd', '']
 dispatch_type = ['Generator', 'Generator ']#[ 'Network Service Provider', 'Generator', 'Generator ', 'Load Norm Off','']
-category = ['Market'] #'Non-Market', '']
-classification = ['Scheduled']# 'Semi-Scheduled']#[ 'Non-Scheduled', 'Scheduled', 'Semi-Scheduled', '']
-fuel_source_primary = [ 'Fossil', 'Renewable/ Biomass / Waste', 'Hydro', 'Fuel Oil', '', 'Wind', 'Biomass', 'Renewable', 'Solar', 'Landfill, Biogas', 'Landfill / Biogas', '']
+category = ['Market','Non-Market', '']
+classification = [ 'Non-Scheduled', 'Scheduled', 'Semi-Scheduled', '']
+fuel_source_primary = [ 'Fossil', 'Renewable/ Biomass / Waste', 'Hydro', 'Fuel Oil', '', 'Wind', 'Biomass', 'Renewable', 'Solar', 'Landfill, Biogas', 'Landfill / Biogas']
 fuel_source_descriptor = [ 'Diesel', 'Brown Coal', 'Coal Seam Methane', 'Landfill Methane / Landfill Gas', 'Natural Gas', 'Water', '', 'Black Coal', 'Wind', 'Bagasse', 'Landfill Gas', 'Solar PV', 'Waste Coal Mine Gas', 'Natural Gas / Diesel', 'Kerosene', 'Landfill, Biogas', 'Hydro', 'Coal Tailings', 'Sewerage/Waste Water', 'Macadamia Nut Shells', 'Natural Gas / Fuel Oil', 'Landfill / Biogas', '']
 technology_type_primary = [ 'Combustion', '', 'Renewable', 'Wind', '']
 technology_type_descriptor = [ 'Compression Reciprocating Engine', 'Steam Sub-Critical', 'Spark Ignition Reciprocating Engine', '', 'Open Cycle Gas turbines (OCGT)', 'Hydro - Gravity', 'Combined Cycle Gas Turbine (CCGT)', 'Run of River', 'Wind - Onshore', 'Steam - sub critical', 'Spark Ignition', 'Steam Super Critical', 'PV - Panels', 'Landfill, Biogas', 'Photovoltaic Flat Panel', 'Closed Cycle Gas Turbines (CCGT)', 'Steam - Super heated', 'Hydro - pump storage', '']
@@ -153,7 +154,7 @@ def our_filter(filter_DUID,filter_YYYY,filter_MM,filter_DD): # This will use our
     our_filter.p_df = p_df
     our_filter.q_df = q_df
 
-def plot_supply(in_p, in_q,fcp,fcq, pr = 0):
+def plot_supply(in_p, in_q,fcp,fcq,timef, pr = 0):
     # this function plots a supply curve
     # input: (i) array with ordered price bands, (one dimensional array)
     #        (ii) array with ordered quantities to price bands
@@ -196,7 +197,7 @@ def plot_supply(in_p, in_q,fcp,fcq, pr = 0):
         fcq = float(fcq)
         fcp = float(fcp)
         plt.ylim((fcp-100,fcp+100))
-        #plt.xlim((fcq-100,fcq+100))
+        plt.xlim((fcq-100,fcq+100))
         plt.scatter(fcq,fcp)
         #print fcq,fcp
         plt.show()
@@ -212,6 +213,8 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
             maxp = mnmx(p_df.loc[p_df.loc[:,"DUID"]==genr,:].loc[:,'BIDVERSIONNO'])
             p_in = p_df.loc[p_df.loc[:,'BIDVERSIONNO']==maxp,price_cols].values
             q_in = q_df.loc[q_df.loc[:,'BIDVERSIONNO']==maxp,quant_cols].values
+            timesb_in = q_df.loc[q_df.loc[:,'BIDVERSIONNO']==maxp,'BIDSETTLEMENTDATE']
+            timesl_in = q_df.loc[q_df.loc[:,'BIDVERSIONNO']==maxp,'LASTCHANGED']
             #print q_in
             q_in = q_in[periodid:periodid+1] # MR Q Karolis. Does this add a column with this data.
             #print q_in
@@ -230,11 +233,25 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
             maxp2 = mnmx(p2_df.loc[:,'BIDVERSIONNO'])
             p2_in = p2_df.loc[p2_df.loc[:,'BIDVERSIONNO']==maxp2,price_cols].values
             q2_in = q2_df.loc[q2_df.loc[:,'BIDVERSIONNO']==maxp2,quant_cols].values
+            timesb2_in = q_df.loc[q_df.loc[:,'BIDVERSIONNO']==maxp,'BIDSETTLEMENTDATE']
+            timesl2_in = q_df.loc[q_df.loc[:,'BIDVERSIONNO']==maxp,'LASTCHANGED']
             p_in = np.append(p_in,p2_in[0])
             q_in = np.append(q_in,q2_in[periodid:periodid+1])
+            timesb_in = np.append(timesb_in,timesb2_in)
+            timesl_in = np.append(timesl_in,timesl2_in)
             #print p2_in
             #print len(p_in)
             #print len(q_in)
+    
+#    temp_time= times_in.reshape((-1,2))
+#    print temp_time[1]
+#    temp_time = np.tile(temp_time,(1,1))
+#    temp_timeln = temp_time[:,1] - temp_time[:,-1]
+#    print temp_timeln
+#    print temp_time
+#    print times_in
+    times = timesb_in - timesl_in
+    #print times
     temp = q_in.reshape((-1,11))
     a = temp[:,0:10]
     b = temp[:,10] #picks out maxavail
@@ -254,6 +271,7 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
     s = p_in.argsort()
     p_in = p_in[s]
     q_in = q_in[s]
+    times = times[s]
     
 #    p_in = p_in[p_in>0]
 #    q_in = q_in[p_in>0]
@@ -262,6 +280,7 @@ def vectors(filter_DUIDs, mnmx, periodid, bidvr = 0):
     #print q_in
     vectors.p_in = p_in
     vectors.q_in = q_in
+    vectors.times = times
     #vectors.bidv = bidv
 # Selection criteria
 DUIDsn=[]
@@ -287,6 +306,7 @@ price_cols = ['PRICEBAND1','PRICEBAND2','PRICEBAND3','PRICEBAND4','PRICEBAND5',
 quant_cols = ['BANDAVAIL1','BANDAVAIL2','BANDAVAIL3','BANDAVAIL4','BANDAVAIL5',
                   'BANDAVAIL6','BANDAVAIL7','BANDAVAIL8','BANDAVAIL9','BANDAVAIL10', 'MAXAVAIL']#,'PERIODID','MAXAVAIL']
 
+difference = ['BIDSETTLEMENTDATE','LASTCHANGED']
 # globalizing local variables
 pricedemand(region[0],YYYY,MM,DD,str(period1))
 priced = pricedemand.priced
@@ -299,7 +319,7 @@ vectors(DUIDsn,np.max,period)
 p_in = vectors.p_in
 q_in = vectors.q_in
 #bidv = vectors.bidv
-plot_supply(p_in,q_in,priced,quantityd,1)
+plot_supply(p_in,q_in,priced,quantityd,vectors.times,1)
 our_filter(DUIDsn,YYYY,MM,DD)
 p_df = our_filter.p_df
 q_df = our_filter.q_df
@@ -307,7 +327,7 @@ vectors(DUIDsn,np.min,period)
 p_in = vectors.p_in
 q_in = vectors.q_in
 #bidv = vectors.bidv
-plot_supply(p_in,q_in,priced,quantityd,1)
+plot_supply(p_in,q_in,priced,quantityd,vectors.times,1)
 
 p_df.to_csv('Empty.CSV', encoding='utf-8')
 
@@ -330,6 +350,8 @@ def a(filtter):
         for line in generator_list:
             if generator in line:
                 hihi.append(line[14])
+                hihi.append(line[6])
+                #print line[6]
                 #print line[14]
 #    print haha
     #print hihi
@@ -345,7 +367,26 @@ def a(filtter):
         
 #        haha = haha.append[make]
 #        print remake
-a(DUIDsn)        
+a(DUIDsn)
+fl = [ 'Fossil', 'Renewable/ Biomass / Waste', 'Hydro', 'Fuel Oil', 'Wind', 'Biomass', 'Renewable', 'Solar', 'Landfill, Biogas', 'Landfill / Biogas']     
+cl = ['b', 'g','r','c','m','y','k','w','#4B0082','#F0E68C'] #'#F0E68C' - khaki, '#4B0082' - indigo
+for lin in hihi:
+    if lin in fl:
+        klo = fl.index(lin)
+        hihi[hihi.index(lin)]=cl[klo]
+
+hk = 1
+d = 0
+for linv in hihi:
+    if hk <=len(hihi):
+        plt.scatter(hihi[hk-1],haha[d],color = str(hihi[hk]))  
+        d= d + 1
+        hk = hk + 2
+        #print hk
+#plt.ylim((0,50))
+#plt.xlim((0, 1000))
+#plt.show()
+
 #haha.remove("-")
 #while "-" in hihi:
 #    hihi.remove("-")
@@ -359,11 +400,11 @@ a(DUIDsn)
 #X_plot = np.linspace(0,False)
 #plt.plot(X_plot, X_plot*results.params[0] + results.params[1])
 
-plt.show()
-plt.scatter(hihi,haha)
-plt.ylim((0,50))
-plt.xlim((0, 1000))
-plt.show()        
+#plt.show()
+#plt.scatter(hihi,haha)
+#plt.ylim((0,50))
+#plt.xlim((0, 1000))
+#plt.show()        
 
 #hello = p_df.loc
 
