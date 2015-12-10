@@ -40,12 +40,16 @@ def linewriter(sourcesub,gennamesub,outputsub):
         if (gennamesub == mn[5]) or ("I" == mn[0]): # select if generator match or heading line
             outputsub.writerow(mn) #write a line if the gen_name is as selected to output file.
 
-folder = os.listdir(os.getcwd()) #retrieves a list of files in current working directory
+
+#folder = os.listdir(os.getcwd()) #retrieves a list of files in current working directory
+path = "O:\\elec\\bids\\data"   # check that this points to the folder with the daily csv files
+folder = os.listdir(path)
+
 for filename in folder: # looping through every name in the list
     if "PUBLIC_YESTBID" in filename and ".CSV" in filename: # checking if it's one of the daily files
         gen_names = [] #creating empty list
         date = [] #creating empty list
-        splitter(filename) #running the CSV file through the splitter method
+        splitter(path+"\\"+filename) #running the CSV file through the splitter method
         gen_names.remove("DUID") # removing DUID value from the list of the generator names. This is created in splitters method
         dater = str(date) #converting the date into a string
         datef = dater[3:7] + "_" + dater[8:10] + "_"+ dater[11:13] #picking out relevant date parts
