@@ -71,6 +71,7 @@ folder = os.listdir(path) #retrieves a list of files in relevant directory
 
 # Selection criteria
 filter_DUID = "BBTHREE2"
+filter_DUID = "LKBONNY2"
 filter_YYYY = "2013"
 filter_MM   = "11"
 filter_DD   = "03"
