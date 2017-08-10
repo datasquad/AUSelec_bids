@@ -24,7 +24,7 @@ for tag in links:
         if link not in list_of_links:
             list_of_links.append("http://www.nemweb.com.au" + link)
             
-target = list_of_links[2:4] # deletes first link that merely points back to parent directory  
+target = list_of_links[2:] # deletes first link that merely points back to parent directory  
 targeturl = urllib.request.URLopener() #url opener
 
 for links in target: 
@@ -32,7 +32,7 @@ for links in target:
 
     if temp_link not in downloads:
         targeturl.retrieve(links, temp_link) # zip file download
-        ZipFile(temp_link,"r").extractall(os.getcwd()) #extracting csv from zip
+        ZipFile(temp_link,"r").extractall(os.getcwd()+"\\extractedYESTBIDS") #extracting csv from zip
         #os.remove(links[80:]) #removing file from computer
         print(temp_link + " downloaded")
             
