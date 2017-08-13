@@ -42,4 +42,6 @@ for links in target:
         print(temp_link + " downloaded")
 
 hh_run = (time.time() - start_time)/(60)
-print("My program took", hh_run, " minutes to run")          
+print("My program took", hh_run, " minutes to run")     
+
+   
